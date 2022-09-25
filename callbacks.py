@@ -1,4 +1,5 @@
 from hashlib import new
+from tkinter import Y
 from weakref import ref
 from dash import Output,Input,MATCH,State,ctx,dcc
 import pandas as pd
@@ -225,17 +226,41 @@ def graphDataTable(rows,value,alldata):
         fig = go.Figure()
 
         #if more than 1 selected
-        for tick in selectedrows:
-            tickdata = data[tick]
+        if len(selectedrows) > 1:
+            for tick in selectedrows:
+                yaxis_title = ''
+                tickdata = data[tick]
+                fig.add_trace(
+                    go.Scatter(
+                        x=tickdata.index, 
+                        y=tickdata['Close'],
+                        mode='lines+markers',
+                        name=tick
+                    )
+                )
+                if inputMethod['index'] == 'CAD':
+                    tick = tick[:-3]
+                yaxis_title = yaxis_title + tick +', '
+            fig.update_yaxes(title_text=yaxis_title)
+        else:
+            tickdata = data
             fig.add_trace(
                 go.Scatter(
                     x=tickdata.index, 
                     y=tickdata['Close'],
                     mode='lines+markers',
-                    name='lines+markers'
+                    name=tickerstring
                 )
             )
+            if inputMethod['index'] == 'CAD':
+                fig.update_yaxes(title_text=tickerstring[:-3])
+            else:
+                fig.update_yaxes(title_text=tickerstring)
 
+        graphtitle = inputMethod['index'] + ' Stocks Graph'
+        fig.update_layout(title=graphtitle)
+        fig.update_xaxes(title_text='Time')
+        
         newchild = dcc.Graph(figure=fig)
         #print('selected rows',selectedrows)
         #newchild = px.line

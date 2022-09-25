@@ -84,7 +84,7 @@ def grabStockInfo(market,ticker,price,amount):
     # 'tradeable', 'dividendYield', 'bidSize', 'dayHigh', 'coinMarketCapLink', 'regularMarketPrice', 'preMarketPrice', 'logo_url', 'trailingPegRatio'])
 
     outname,sector,industry,longsummary,marketprice,open,divyield,yeardiv,prevclose = stock.info['longName'],stock.info['sector'],stock.info['industry'],stock.info['longBusinessSummary'],stock.info['currentPrice'],stock.info['open'],stock.info['dividendYield'],stock.info['dividendRate'],stock.info['previousClose']
-    
+
     #print(stock.info)
     #daychange uses yesterdays close
     daychange = (marketprice - prevclose)/prevclose * 100
@@ -159,4 +159,3 @@ def refreshStock(market,entiredata):
 # # print(bell)
 # print(bell.index)
 #.index for datetime, close for closing
-

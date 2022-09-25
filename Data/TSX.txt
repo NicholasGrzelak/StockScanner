@@ -1742,8 +1742,8 @@ RCE	RBC Quant Canadian Equity Leaders ETF
 RCG	RF Capital Group Inc
 RCG.PR.B	RF Capital Group Inc Pref B
 RCH	Richelieu Hardware Ltd
-RCI.A	Rogers Communications Inc Cl A Mv
-RCI.B	Rogers Communications Inc Cl B NV
+RCI-A	Rogers Communications Inc Cl A Mv
+RCI-B	Rogers Communications Inc Cl B NV
 REAL	Real Matters Inc
 REAX	The Real Brokerage Inc
 RECP	Recipe Unlimited Corp

@@ -34,51 +34,53 @@ layout = dbc.Container([
     ]),
     #Nav Bar
     dbc.Navbar(
-        dbc.Container([
-            html.A(
-                # Use row and col to control vertical alignment of logo / brand
+        dbc.Container(
+            [
+                html.A(
+                    dbc.Row([
+                        dbc.Col(html.Img(src='assets/mainlogo.png', height="30px")),
+                        dbc.Col(dbc.NavbarBrand("Stock Scanner", className="ms-2"))],
+                        align="center",
+                        class_name="g-0",
+                    ),
+                    href="/",
+                    style={"textDecoration": "none"},
+                ),
                 dbc.Row(
                     [
-                        dbc.Col(html.Img(src='assets/mainlogo.png', height="30px")),
-                        dbc.Col(dbc.NavbarBrand("Stock Scanner", className="ms-2")),
+                        dbc.NavbarToggler(id="navbar-toggler"),
+                        dbc.Collapse(
+                            dbc.Nav(
+                                [
+                                    dbc.NavItem(dbc.NavLink("Analysis")),
+                                    dbc.NavItem(dbc.NavLink("Dashboard")),
+                                    dbc.NavItem(
+                                        dbc.NavLink("History"),
+                                        # add an auto margin after page 2 to
+                                        # push later links to end of nav
+                                        class_name="me-auto",
+                                    ),
+                                    dbc.NavItem(dbc.NavLink("Settings")),
+                                    dbc.NavItem(dbc.NavLink("Help")),
+                                    dbc.NavItem(dbc.NavLink("About")),
+                                ],
+                                # make sure nav takes up the full width for auto
+                                # margin to get applied
+                                class_name="w-100",
+                            ),
+                            id="navbar-collapse",
+                            is_open=False,
+                            navbar=True,
+                        ),
                     ],
-                    align="center",
-                    className="g-0",
+                    # the row should expand to fill the available horizontal space
+                    class_name="flex-grow-1",
                 ),
-                href="https://plotly.com",
-                style={"textDecoration": "none"},
-            ),
-            dbc.NavbarToggler(id="navbar-toggler", n_clicks=0),
-            dbc.Collapse(
-                #SEARCH PART
-                [
-                    dbc.Row([
-                        dbc.Col([
-                            html.A(html.H6('History',style={'color':'white'}),href="https://plotly.com",style={"textDecoration": "none"})
-                        ]),
-                        dbc.Col([
-                            html.A(html.H6('Analysis',style={'color':'white'}),href="https://plotly.com",style={"textDecoration": "none"})
-                        ]),
-                        dbc.Col([
-                            html.A(html.H6('Dashboard',style={'color':'white'}),href="https://plotly.com",style={"textDecoration": "none"})
-                        ]),
-                    ],
-                    #className="g-0 ms-auto flex-nowrap mt-3 mt-md-0",
-                    #class_name="w3-padding w3-display-right",
-                    #class_name="g-0 ms-auto flex-nowrap mt-3 mt-md-0",
-                    align="center",
-                    style={'margin-left':'auto','margin-right':'0%','text-align':'right'},
-                    )
-                ],
-                id="navbar-collapse",
-                is_open=False,
-                navbar=True,
-                style={}
-            ),
-        ],style={'margin-left':'2%'}),
-    color="dark",
-    dark=True,
-    #'left':'-12px','right':'0px'
+            ],
+            fluid=True,
+        ),
+        dark=True,
+        color="dark",
     ),
     # dbc.Row([
     #     dbc.NavbarSimple(
@@ -137,11 +139,6 @@ layout = dbc.Container([
                         dbc.Card([
                             dbc.Container([
                                 dbc.Row([
-                                    dbc.Col([],width=10),
-                                    dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
-                                    dbc.Col([html.H4('$1,000')],style={'text-align':'left'}),
-                                ],style={'padding-bottom':'2%'}),
-                                dbc.Row([
                                     # dbc.Tabs(
                                     #     children=[
                                     #         dbc.Tab(label='Test 1'),
@@ -168,7 +165,9 @@ layout = dbc.Container([
                                         id={'type':'radio-container','index':'CAD'},
                                         children =[
                                             dbc.Row([
-                                                dbc.Col(['Add to Table:']),
+                                                dbc.Col([
+                                                    dcc.Dropdown(id={'type':'action-dropdown','index':'CAD'},options=['Buy','Sell'],value='Buy',style={'height':'60px'},optionHeight=40)
+                                                ]),
                                                 dbc.Col([
                                                     dbc.FormFloating([
                                                         dbc.Input(id={'type':'stock-input','index':'CAD'},type="stock", placeholder="BCE",debounce=True,autoComplete='off',list='suggest-stocks-input'),
@@ -188,9 +187,18 @@ layout = dbc.Container([
                                                     ])
                                                 ]),
                                                 dbc.Col([
-                                                    dbc.Button('Confirm',id={'type':'stock-confirm','index':'CAD'})
+                                                    dbc.Button('Update Table',id={'type':'stock-confirm','index':'CAD'})
                                                 ]),
-                                            ]),
+                                                dbc.Col([]),
+                                                dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
+                                                dbc.Col([html.H4('$1,000')],style={'text-align':'left'}),
+                                            ],style={'padding-bottom':'2%'}),
+                                            # dbc.Row([
+                                            #     dbc.Col([],width=10),
+                                            #     dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
+                                            #     dbc.Col([html.H4('$1,000')],style={'text-align':'left'}),
+                                            # ]),
+                                            #style={'padding-bottom':'2%'})
                                             dbc.Row([
                                                 dash_table.DataTable(
                                                     id={'type':'datatable','index':'CAD'},
@@ -206,25 +214,25 @@ layout = dbc.Container([
                                                         'maxWidth': 0,
                                                     },
                                                 )
-                                            ],style={'padding':'4%'}),
-                                            dbc.Row([
-                                                dbc.Col([html.H5('X-Value')]),
-                                                dbc.Col([
-                                                    dcc.Dropdown(
-                                                        id='x-val-drop',
-                                                        multi=False,
-                                                        options=column_names
-                                                    )
-                                                ]),
-                                                dbc.Col([html.H5('Y-Value')]),
-                                                dbc.Col([
-                                                    dcc.Dropdown(
-                                                        id='y-val-drop',
-                                                        multi=True,
-                                                        options=column_names
-                                                    )
-                                                ]),
-                                            ]),
+                                            ],style={'padding-bottom':'4%'}),
+                                            # dbc.Row([
+                                            #     dbc.Col([html.H5('X-Value')]),
+                                            #     dbc.Col([
+                                            #         dcc.Dropdown(
+                                            #             id='x-val-drop',
+                                            #             multi=False,
+                                            #             options=column_names
+                                            #         )
+                                            #     ]),
+                                            #     dbc.Col([html.H5('Y-Value')]),
+                                            #     dbc.Col([
+                                            #         dcc.Dropdown(
+                                            #             id='y-val-drop',
+                                            #             multi=True,
+                                            #             options=column_names
+                                            #         )
+                                            #     ]),
+                                            # ]),
                                             dbc.Row([
                                                 dbc.Col(),
                                                 dbc.Col(),
