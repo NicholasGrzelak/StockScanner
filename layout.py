@@ -1,11 +1,28 @@
 from dash import html,dash_table,dcc
 import dash_bootstrap_components as dbc
 
+from functions import checkStockCache, grabStockInfo
+
 column_names = ['Stock Name','Ticker','Sector','Industry','# of Shares','Average Cost','Market Price','Day Change %','Dividend/Share','Dividend Yield','Dividend','Gain %','Gain','Total Equity','P/E']
 
-caddata = [
-{x:(0) for x in column_names}
-]
+caddata = []
+cadsummary =[]
+tempdataCAD = checkStockCache('CAD')
+for cached in tempdataCAD:
+    stockinfo,summary = grabStockInfo(cached[0],cached[2],cached[3],cached[4])
+    tempdict = {column_names[i]:stockinfo[i] for i in range(len(column_names))}
+    caddata.append(tempdict)
+    cadsummary.append(summary)
+
+#print(caddata)
+#print('cadsummary',cadsummary)
+
+if len(caddata) == 0:
+    print('yes')
+    caddata = [
+    {x:(0) for x in column_names}
+    ]
+
 
 layout = dbc.Container([
     #HEADER SECTION
@@ -115,7 +132,7 @@ layout = dbc.Container([
             id='tabs',
             children=[
                 dbc.Tab(
-                    label='Canadian',
+                    label='Canadian Market',
                     children=[
                         dbc.Card([
                             dbc.Container([
@@ -179,9 +196,15 @@ layout = dbc.Container([
                                                     id={'type':'datatable','index':'CAD'},
                                                     columns = [{'name':column,'id':column} for column in column_names],
                                                     data = caddata,
-                                                    tooltip_data=[],
+                                                    tooltip_data=[{column_names[0]:x} for x in cadsummary],
                                                     filter_action="native",
                                                     sort_action="native",
+                                                    row_selectable="multi",
+                                                    style_cell={
+                                                        'overflow': 'hidden',
+                                                        'textOverflow': 'ellipsis',
+                                                        'maxWidth': 0,
+                                                    },
                                                 )
                                             ],style={'padding':'4%'}),
                                             dbc.Row([
@@ -203,8 +226,29 @@ layout = dbc.Container([
                                                 ]),
                                             ]),
                                             dbc.Row([
-                                                #px.line()
-                                            ]),
+                                                dbc.Col(),
+                                                dbc.Col(),
+                                                dbc.Col(),
+                                                dbc.Col([
+                                                    dbc.RadioItems(
+                                                        id={'type':'graph-radios','index':'CAD'},
+                                                        class_name="btn-group",
+                                                        inputClassName="btn-check",
+                                                        labelClassName="btn btn-outline-primary",
+                                                        labelCheckedClassName="active",
+                                                        style={'padding':'0%'},
+                                                        options=[
+                                                            {"label": "1 Day", "value": 1},
+                                                            {"label": "5 Day", "value": 2},
+                                                            {"label": "1 Month", "value": 3},
+                                                            {"label": "3 Month", "value": 4},
+                                                            {"label": "1 Year", "value": 5},
+                                                        ],
+                                                        value=1,
+                                                    ),
+                                                ]),
+                                            ],style={'padding-top':'1%'}),
+                                            dbc.Row(id = {'type':'graph-container','index':'CAD'}),
                                         ]
                                     )
                                 ]),
@@ -215,7 +259,7 @@ layout = dbc.Container([
                     tab_style={'margin':'auto'},
                 ),
                 dbc.Tab(
-                    label='American',
+                    label='American Market',
                     children=[
                         dbc.Card([
                             html.H4('test')
@@ -225,7 +269,7 @@ layout = dbc.Container([
                     tab_style={'margin':'auto'},
                 ),
                 dbc.Tab(
-                    label='Crypto',
+                    label='Crypto Market',
                     children=[
                         dbc.Card([
                             html.H4('test')

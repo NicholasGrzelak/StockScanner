@@ -103,7 +103,7 @@ def grabStockInfo(market,ticker,price,amount):
     data = [outname,ticker,sector,industry,amount,round(price,2),round(marketprice,2),round(daychange,2),yeardiv,round(divyield,2),totaldiv,round(gainpercent,2),round(gain,2),round(total,2),'p/e']
     return data,longsummary
 
-def refreshStock(market,entiredata):\
+def refreshStock(market,entiredata):
     #works okay but it still needs to me better
     tickerlist = []
 
@@ -151,4 +151,12 @@ def refreshStock(market,entiredata):\
     # print(stockdict)
     # return stockdict
 
-refreshStock('CAD',[{'Ticker':'BCE'},{'Ticker':'TD'}])
+#refreshStock('CAD',[{'Ticker':'BCE'},{'Ticker':'TD'}])
+
+# data = yf.download('BCE.TO BB.TO',period = '1d',interval = '30m',group_by = 'ticker')
+# bell = data['BCE.TO']
+
+# # print(bell)
+# print(bell.index)
+#.index for datetime, close for closing
+
