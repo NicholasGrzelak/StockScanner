@@ -9,6 +9,7 @@ caddata = []
 cadsummary =[]
 tempdataCAD = checkStockCache('CAD')
 for cached in tempdataCAD:
+    print(cached)
     stockinfo,summary = grabStockInfo(cached[0],cached[2],cached[3],cached[4])
     tempdict = {column_names[i]:stockinfo[i] for i in range(len(column_names))}
     caddata.append(tempdict)

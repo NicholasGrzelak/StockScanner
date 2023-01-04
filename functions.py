@@ -62,9 +62,10 @@ def grabStockInfo(market,ticker,price,amount):
     if market == 'CAD' and ticker[-3:] != '.TO':
         fixedstockname = ticker + '.TO'
 
+    #print(fixedstockname)
     stock = yf.Ticker(fixedstockname)
 
-    #print(stock.info.keys)
+    #print(stock.info.keys())
     #['Stock Name','Ticker','Sector','Industry','# of Shares','Average Cost','Market Price','Day Change %','Dividend/Share','Dividend Yield','Dividend','Gain %','Gain','Total Equity','P/E']
     # maybe use 'trailingEps'
 
@@ -83,7 +84,11 @@ def grabStockInfo(market,ticker,price,amount):
     # 'maxSupply', 'openInterest', 'marketCap', 'volumeAllCurrencies', 'strikePrice', 'averageVolume', 'dayLow', 'ask', 'askSize', 'volume', 'fiftyTwoWeekHigh', 'fromCurrency', 'fiveYearAvgDividendYield', 'fiftyTwoWeekLow', 'bid',
     # 'tradeable', 'dividendYield', 'bidSize', 'dayHigh', 'coinMarketCapLink', 'regularMarketPrice', 'preMarketPrice', 'logo_url', 'trailingPegRatio'])
 
+    #try:
     outname,sector,industry,longsummary,marketprice,open,divyield,yeardiv,prevclose = stock.info['longName'],stock.info['sector'],stock.info['industry'],stock.info['longBusinessSummary'],stock.info['currentPrice'],stock.info['open'],stock.info['dividendYield'],stock.info['dividendRate'],stock.info['previousClose']
+    #except KeyError:
+        #Keyerror for longName
+        #outname,sector,industry,longsummary,marketprice,open,divyield,yeardiv,prevclose = stock.info['longName'],stock.info['sector'],stock.info['industry'],stock.info['longBusinessSummary'],stock.info['currentPrice'],stock.info['open'],stock.info['dividendYield'],stock.info['dividendRate'],stock.info['previousClose']
 
     #print(stock.info)
     #daychange uses yesterdays close
