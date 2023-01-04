@@ -1,8 +1,7 @@
 # Byte-compiled / optimized / DLL files
 test.py
-Cache\
-Cache/Current.txt
-Cache/History.txt
+Cache\*
+
 __pycache__/
 *.py[cod]
 *$py.class
