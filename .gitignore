@@ -1,6 +1,6 @@
 # Byte-compiled / optimized / DLL files
 test.py
-Cache\*
+Cache/
 
 __pycache__/
 *.py[cod]
