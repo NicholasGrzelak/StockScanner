@@ -1,5 +1,6 @@
 import ast
 import yfinance as yf
+from datetime import date
 
 def tickersTor():
     CADEXCH = ['TSX','TSXV']
@@ -61,6 +62,8 @@ def checkvalid(value):
 def grabStockInfo(market,ticker,price,amount):
     if market == 'CAD' and ticker[-3:] != '.TO':
         fixedstockname = ticker + '.TO'
+    else:
+        fixedstockname = ticker
 
     #print(fixedstockname)
     stock = yf.Ticker(fixedstockname)
@@ -164,3 +167,21 @@ def refreshStock(market,entiredata):
 # # print(bell)
 # print(bell.index)
 #.index for datetime, close for closing
+
+def ConvertCurrency(amount,start,ending):
+    today = date.today()
+    conversion = start + ending + '=X'
+    stock = yf.download(tickers=conversion,start=today)
+    rate = float(stock['Close'])
+    currency = amount * rate
+    currency = round(currency,2)
+    return currency
+
+def cleanCurrency(numberstring):
+    '''Removes $ and commas from currencys'''
+    if numberstring[0] == '$':
+        numberstring = numberstring[1:]
+    numberlist = numberstring.split(',')
+    number = float(''.join(numberlist))
+    return number
+

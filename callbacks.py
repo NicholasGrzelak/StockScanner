@@ -1,13 +1,15 @@
 from hashlib import new
 from tkinter import Y
 from weakref import ref
-from dash import Output,Input,MATCH,State,ctx,dcc
+from dash import Output,Input,MATCH,State,ctx,dcc,ALL
 import pandas as pd
 import yfinance as yf
 from app import app
 from datetime import date
 from functions import *
 import plotly.graph_objects as go
+
+column_names = ['Stock Name','Ticker','Sector','Industry','# of Shares','Average Cost','Market Price','Day Change %','Dividend/Share','Dividend Yield','Dividend','Gain %','Gain','Total Equity','P/E']
 
 today = date.today()
 # dd/mm/YY day month year
@@ -62,6 +64,27 @@ def addToTable(clicks,intervals,data,tooltips,ticker,amount,price):
             else:
                 print('no')
 
+        if data == []:
+            print('empty table')
+            market = inputMethod['index']
+            rowdict = {}
+            Cachelist =[]
+
+            data, longsummary = grabStockInfo(market,ticker,price,amount)
+            #List of different dictionaries
+            #rowdict = [{column_names[i]:data[i]} for i in range(len(column_names))]
+            for i in range(len(column_names)):
+                rowdict[column_names[i]] = data[i]
+            #print(rowdict)
+            rowdict = [rowdict]
+            df = pd.DataFrame(rowdict)
+
+            currenttip = {df.columns[0]:longsummary}
+            tooltips.append(currenttip)
+
+            cacheStocks(market,dmy,ticker,price,amount)
+
+            return rowdict,tooltips
         df = pd.DataFrame(data)
 
         #if ticker in dataframe
@@ -70,7 +93,11 @@ def addToTable(clicks,intervals,data,tooltips,ticker,amount,price):
         
         #df.loc[ticker]
         if indata == False:
+            print('line 73 callbacks')
             data, longsummary = grabStockInfo(market,ticker,price,amount)
+            # print(rowdict == {})
+            # if rowdict == {}:
+            #     rowdict = [{column:''} for column in column_names]
             for i in range(len(data)):
                 rowdict[df.columns[i]]=data[i]
 
@@ -267,3 +294,69 @@ def graphDataTable(rows,value,alldata):
         return newchild
     else:
         return None
+
+@app.callback(
+    Output({'type':'value-label','index':MATCH},'children'),
+    Input({'type':'datatable','index':MATCH},'data'),
+    Input({'type':'cash-balance','index':MATCH},'children')
+)
+
+def getValue(data,cash):
+    """Updates value inside tab page"""
+    value = 0
+    cash = cleanCurrency(cash[0])
+    for row in data:
+        value = value + float(row['# of Shares']) * float(row['Market Price'])
+    value = value + cash
+    outputlook = "{:,.2f}".format(value)
+    return "$"+outputlook
+
+@app.callback(
+    Output('currency-label','label'),
+    Input({'type':'currency','index':ALL},'n_clicks'),
+    prevent_initial_call=True
+)
+def ChangeLabel(clicks):
+    """Changes Label next to total portfolio value"""
+    inputMethod = ctx.triggered_id
+    label = inputMethod['index']
+    return label
+
+@app.callback(
+    Output('total-balance','children'),
+    Input({'type':'value-label','index':ALL},'children'),
+    #Input({'type':'value-label','index':'CAD'},'children'),
+    Input('currency-label','label'),
+    prevent_initial_call=True
+)
+def MainValue(allvalues,label):
+    #print(label)
+    valslist = []
+    #allvalues = [CAD,USD]
+    for each in allvalues:
+        #print(each)
+        floatval = cleanCurrency(each)
+        valslist.append(floatval)
+    if label == 'CAD':
+        value = valslist[0] + ConvertCurrency(valslist[1],'USD','CAD')
+        outputlook = "{:,.2f}".format(value)
+        finaloutput = '$'+ outputlook
+    elif label == 'USD':
+        UScurrency = valslist[1] + ConvertCurrency(valslist[0],'CAD','USD')
+        outputlook = "{:,.2f}".format(UScurrency)
+        finaloutput = '$'+ outputlook
+    elif label == 'GBP':
+        GBPcurrency = ConvertCurrency(valslist[0],'CAD','GBP') + ConvertCurrency(valslist[1],'USD','GBP')
+        outputlook = "{:,.2f}".format(GBPcurrency)
+        finaloutput = '£'+ outputlook
+    elif label == 'EUR':
+        EURcurrency = ConvertCurrency(valslist[0],'CAD','EUR') + ConvertCurrency(valslist[1],'USD','EUR')
+        outputlook = "{:,.2f}".format(EURcurrency)
+        finaloutput = '€'+ outputlook
+    else:
+        print('unexpected error')
+        outputlook = "{:,.2f}".format(value)
+        finaloutput = outputlook
+
+    return finaloutput
+

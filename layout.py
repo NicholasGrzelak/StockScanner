@@ -7,7 +7,10 @@ column_names = ['Stock Name','Ticker','Sector','Industry','# of Shares','Average
 
 caddata = []
 cadsummary =[]
+usddata = []
+usdsummary =[]
 tempdataCAD = checkStockCache('CAD')
+print('running first check layout')
 for cached in tempdataCAD:
     print(cached)
     stockinfo,summary = grabStockInfo(cached[0],cached[2],cached[3],cached[4])
@@ -19,7 +22,7 @@ for cached in tempdataCAD:
 #print('cadsummary',cadsummary)
 
 if len(caddata) == 0:
-    print('yes')
+    #print('yes')
     caddata = [
     {x:(0) for x in column_names}
     ]
@@ -31,7 +34,8 @@ layout = dbc.Container([
     #Change to more customizable
     dbc.Row([
         #dcc.Interval(id='main-interval',interval=90000)
-        dcc.Interval(id={'type':'interval','index':'CAD'},interval=30000)
+        dcc.Interval(id={'type':'interval','index':'CAD'},interval=30000),
+        dcc.Interval(id={'type':'interval','index':'USD'},interval=30000)
     ]),
     #Nav Bar
     dbc.Navbar(
@@ -101,14 +105,16 @@ layout = dbc.Container([
     dbc.Row([html.H5('Portfolio Balance: ')],style={'padding-top':'3%','padding-left':'5%'}),
     dbc.Row([
         dbc.Col([
-            html.H1('$100,000'),
+            html.H1(id='total-balance',children=['$0']),
             dbc.DropdownMenu(
+                id='currency-label',
                 label='CAD',#CHANGE WITH OPTION
+                menu_variant="dark",
                 children=[
-                    dbc.DropdownMenuItem('CAD'),
-                    dbc.DropdownMenuItem('USD'),
-                    dbc.DropdownMenuItem('GBP'),
-                    dbc.DropdownMenuItem('EUR'),
+                    dbc.DropdownMenuItem(id={'type':'currency','index':'CAD'},children=['CAD']),
+                    dbc.DropdownMenuItem(id={'type':'currency','index':'USD'},children=['USD']),
+                    dbc.DropdownMenuItem(id={'type':'currency','index':'GBP'},children=['GBP']),
+                    dbc.DropdownMenuItem(id={'type':'currency','index':'EUR'},children=['EUR']),
                 ],
                 size='sm',
                 style={'padding-left':'2%','bottom':'-25%'}
@@ -136,6 +142,7 @@ layout = dbc.Container([
             children=[
                 dbc.Tab(
                     label='Canadian Market',
+                    id={'type':'tab','index':'CAD'},
                     children=[
                         dbc.Card([
                             dbc.Container([
@@ -167,6 +174,14 @@ layout = dbc.Container([
                                         children =[
                                             dbc.Row([
                                                 dbc.Col([
+                                                    dbc.Label("CAD Value: ")
+                                                ],style={'text-align':'right'}),
+                                                dbc.Col([
+                                                    dbc.Label(id={'type':'value-label','index':'CAD'},children=['0'])
+                                                ],style={'text-align':'left'})
+                                            ]),
+                                            dbc.Row([
+                                                dbc.Col([
                                                     dcc.Dropdown(id={'type':'action-dropdown','index':'CAD'},options=['Buy','Sell'],value='Buy',style={'height':'60px'},optionHeight=40)
                                                 ]),
                                                 dbc.Col([
@@ -192,7 +207,7 @@ layout = dbc.Container([
                                                 ]),
                                                 dbc.Col([]),
                                                 dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
-                                                dbc.Col([html.H4('$1,000')],style={'text-align':'left'}),
+                                                dbc.Col(id={'type':'cash-balance','index':'CAD'},children=[('$1,000')],style={'text-align':'left'}),
                                             ],style={'padding-bottom':'2%'}),
                                             # dbc.Row([
                                             #     dbc.Col([],width=10),
@@ -269,10 +284,142 @@ layout = dbc.Container([
                 ),
                 dbc.Tab(
                     label='American Market',
+                    id={'type':'tab','index':'USD'},
                     children=[
                         dbc.Card([
-                            html.H4('test')
-                        ])
+                            dbc.Container([
+                                dbc.Row([
+                                    # dbc.Tabs(
+                                    #     children=[
+                                    #         dbc.Tab(label='Test 1'),
+                                    #         dbc.Tab(label='Test 2')
+                                    #     ]
+                                    html.Center(
+                                        dbc.RadioItems(
+                                            id={'type':'radioitems','index':'USD'},
+                                            className="btn-group",
+                                            inputClassName="btn-check",
+                                            labelClassName="btn btn-outline-primary",
+                                            labelCheckedClassName="active",
+                                            options=[
+                                                {"label": "Dashboard", "value": 1},
+                                                {"label": "Watch List", "value": 2},
+                                                {"label": "ETF and Market", "value": 3},
+                                            ],
+                                            value=1,
+                                        )
+                                    )
+                                ],style={'padding-bottom':'2%'}),
+                                dbc.Row([
+                                    dbc.Container(
+                                        id={'type':'radio-container','index':'USD'},
+                                        children =[
+                                            dbc.Row([
+                                                dbc.Col([
+                                                    dbc.Label("USD Value: ")
+                                                ],style={'text-align':'right'}),
+                                                dbc.Col([
+                                                    dbc.Label(id={'type':'value-label','index':'USD'},children=['0'])
+                                                ],style={'text-align':'left'})
+                                            ]),
+                                            dbc.Row([
+                                                dbc.Col([
+                                                    dcc.Dropdown(id={'type':'action-dropdown','index':'USD'},options=['Buy','Sell'],value='Buy',style={'height':'60px'},optionHeight=40)
+                                                ]),
+                                                dbc.Col([
+                                                    dbc.FormFloating([
+                                                        dbc.Input(id={'type':'stock-input','index':'USD'},type="stock", placeholder="BCE",debounce=True,autoComplete='off',list='suggest-stocks-input'),
+                                                        dbc.Label("Stock Name"),
+                                                    ])
+                                                ]),
+                                                dbc.Col([
+                                                    dbc.FormFloating([
+                                                        dbc.Input(id={'type':'amount-input','index':'USD'},type="number",placeholder='10',min=1,autoComplete='off'),
+                                                        dbc.Label("# of Stocks"),
+                                                    ])
+                                                ]),
+                                                dbc.Col([
+                                                    dbc.FormFloating([
+                                                        dbc.Input(id={'type':'price-input','index':'USD'},type="number",placeholder='20',min=0,autoComplete='off'),
+                                                        dbc.Label("$ in USD"),
+                                                    ])
+                                                ]),
+                                                dbc.Col([
+                                                    dbc.Button('Update Table',id={'type':'stock-confirm','index':'USD'})
+                                                ]),
+                                                dbc.Col([]),
+                                                dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
+                                                dbc.Col(id={'type':'cash-balance','index':'USD'},children=[('$1,000')],style={'text-align':'left'}),
+                                            ],style={'padding-bottom':'2%'}),
+                                            # dbc.Row([
+                                            #     dbc.Col([],width=10),
+                                            #     dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
+                                            #     dbc.Col([html.H4('$1,000')],style={'text-align':'left'}),
+                                            # ]),
+                                            #style={'padding-bottom':'2%'})
+                                            dbc.Row([
+                                                dash_table.DataTable(
+                                                    id={'type':'datatable','index':'USD'},
+                                                    columns = [{'name':column,'id':column} for column in column_names],
+                                                    data = usddata,
+                                                    tooltip_data=[{column_names[0]:x} for x in usdsummary],
+                                                    filter_action="native",
+                                                    sort_action="native",
+                                                    row_selectable="multi",
+                                                    style_cell={
+                                                        'overflow': 'hidden',
+                                                        'textOverflow': 'ellipsis',
+                                                        'maxWidth': 0,
+                                                    },
+                                                )
+                                            ],style={'padding-bottom':'4%'}),
+                                            # dbc.Row([
+                                            #     dbc.Col([html.H5('X-Value')]),
+                                            #     dbc.Col([
+                                            #         dcc.Dropdown(
+                                            #             id='x-val-drop',
+                                            #             multi=False,
+                                            #             options=column_names
+                                            #         )
+                                            #     ]),
+                                            #     dbc.Col([html.H5('Y-Value')]),
+                                            #     dbc.Col([
+                                            #         dcc.Dropdown(
+                                            #             id='y-val-drop',
+                                            #             multi=True,
+                                            #             options=column_names
+                                            #         )
+                                            #     ]),
+                                            # ]),
+                                            dbc.Row([
+                                                dbc.Col(),
+                                                dbc.Col(),
+                                                dbc.Col(),
+                                                dbc.Col([
+                                                    dbc.RadioItems(
+                                                        id={'type':'graph-radios','index':'USD'},
+                                                        class_name="btn-group",
+                                                        inputClassName="btn-check",
+                                                        labelClassName="btn btn-outline-primary",
+                                                        labelCheckedClassName="active",
+                                                        style={'padding':'0%'},
+                                                        options=[
+                                                            {"label": "1 Day", "value": 1},
+                                                            {"label": "5 Day", "value": 2},
+                                                            {"label": "1 Month", "value": 3},
+                                                            {"label": "3 Month", "value": 4},
+                                                            {"label": "1 Year", "value": 5},
+                                                        ],
+                                                        value=1,
+                                                    ),
+                                                ]),
+                                            ],style={'padding-top':'1%'}),
+                                            dbc.Row(id = {'type':'graph-container','index':'USD'}),
+                                        ]
+                                    )
+                                ]),
+                            ],style={'padding':'2%'})
+                        ],style={'margin-top':'1%','padding-top':'1%','padding-bottom':'1%'}),
                     ],
                     style={'text-align':'center'},
                     tab_style={'margin':'auto'},
@@ -292,3 +439,139 @@ layout = dbc.Container([
         )
     ])
 ],fluid=True,style={'padding':'0%'})
+
+# def MainTab(indexstring):
+#     newelement = dbc.Card([
+#         dbc.Container([
+#             dbc.Row([
+#                 # dbc.Tabs(
+#                 #     children=[
+#                 #         dbc.Tab(label='Test 1'),
+#                 #         dbc.Tab(label='Test 2')
+#                 #     ]
+#                 html.Center(
+#                     dbc.RadioItems(
+#                         id={'type':'radioitems','index':indexstring},
+#                         className="btn-group",
+#                         inputClassName="btn-check",
+#                         labelClassName="btn btn-outline-primary",
+#                         labelCheckedClassName="active",
+#                         options=[
+#                             {"label": "Dashboard", "value": 1},
+#                             {"label": "Watch List", "value": 2},
+#                             {"label": "ETF and Market", "value": 3},
+#                         ],
+#                         value=1,
+#                     )
+#                 )
+#             ],style={'padding-bottom':'2%'}),
+#             dbc.Row([
+#                 dbc.Container(
+#                     id={'type':'radio-container','index':indexstring},
+#                     children =[
+#                         dbc.Row([
+#                             dbc.Col([
+#                                 dbc.Label(indexstring + " Value: ")
+#                             ],style={'text-align':'right'}),
+#                             dbc.Col([
+#                                 dbc.Label(id={'type':'value-label','index':indexstring},children=['0'])
+#                             ],style={'text-align':'left'})
+#                         ]),
+#                         dbc.Row([
+#                             dbc.Col([
+#                                 dcc.Dropdown(id={'type':'action-dropdown','index':indexstring},options=['Buy','Sell'],value='Buy',style={'height':'60px'},optionHeight=40)
+#                             ]),
+#                             dbc.Col([
+#                                 dbc.FormFloating([
+#                                     dbc.Input(id={'type':'stock-input','index':indexstring},type="stock", placeholder="BCE",debounce=True,autoComplete='off',list='suggest-stocks-input'),
+#                                     dbc.Label("Stock Name"),
+#                                 ])
+#                             ]),
+#                             dbc.Col([
+#                                 dbc.FormFloating([
+#                                     dbc.Input(id={'type':'amount-input','index':indexstring},type="number",placeholder='10',min=1,autoComplete='off'),
+#                                     dbc.Label("# of Stocks"),
+#                                 ])
+#                             ]),
+#                             dbc.Col([
+#                                 dbc.FormFloating([
+#                                     dbc.Input(id={'type':'price-input','index':indexstring},type="number",placeholder='20',min=0,autoComplete='off'),
+#                                     dbc.Label("$ in " + indexstring),
+#                                 ])
+#                             ]),
+#                             dbc.Col([
+#                                 dbc.Button('Update Table',id={'type':'stock-confirm','index':indexstring})
+#                             ]),
+#                             dbc.Col([]),
+#                             dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
+#                             dbc.Col(id={'type':'cash-balance','index':indexstring},children=[('$1,000')],style={'text-align':'left'}),
+#                         ],style={'padding-bottom':'2%'}),
+#                         # dbc.Row([
+#                         #     dbc.Col([],width=10),
+#                         #     dbc.Col([html.H5('Cash:')],style={'text-align':'right'}),
+#                         #     dbc.Col([html.H4('$1,000')],style={'text-align':'left'}),
+#                         # ]),
+#                         #style={'padding-bottom':'2%'})
+#                         dbc.Row([
+#                             dash_table.DataTable(
+#                                 id={'type':'datatable','index':indexstring},
+#                                 columns = [{'name':column,'id':column} for column in column_names],
+#                                 data = usddata,
+#                                 tooltip_data=[{column_names[0]:x} for x in usdsummary],
+#                                 filter_action="native",
+#                                 sort_action="native",
+#                                 row_selectable="multi",
+#                                 style_cell={
+#                                     'overflow': 'hidden',
+#                                     'textOverflow': 'ellipsis',
+#                                     'maxWidth': 0,
+#                                 },
+#                             )
+#                         ],style={'padding-bottom':'4%'}),
+#                         # dbc.Row([
+#                         #     dbc.Col([html.H5('X-Value')]),
+#                         #     dbc.Col([
+#                         #         dcc.Dropdown(
+#                         #             id='x-val-drop',
+#                         #             multi=False,
+#                         #             options=column_names
+#                         #         )
+#                         #     ]),
+#                         #     dbc.Col([html.H5('Y-Value')]),
+#                         #     dbc.Col([
+#                         #         dcc.Dropdown(
+#                         #             id='y-val-drop',
+#                         #             multi=True,
+#                         #             options=column_names
+#                         #         )
+#                         #     ]),
+#                         # ]),
+#                         dbc.Row([
+#                             dbc.Col(),
+#                             dbc.Col(),
+#                             dbc.Col(),
+#                             dbc.Col([
+#                                 dbc.RadioItems(
+#                                     id={'type':'graph-radios','index':'USD'},
+#                                     class_name="btn-group",
+#                                     inputClassName="btn-check",
+#                                     labelClassName="btn btn-outline-primary",
+#                                     labelCheckedClassName="active",
+#                                     style={'padding':'0%'},
+#                                     options=[
+#                                         {"label": "1 Day", "value": 1},
+#                                         {"label": "5 Day", "value": 2},
+#                                         {"label": "1 Month", "value": 3},
+#                                         {"label": "3 Month", "value": 4},
+#                                         {"label": "1 Year", "value": 5},
+#                                     ],
+#                                     value=1,
+#                                 ),
+#                             ]),
+#                         ],style={'padding-top':'1%'}),
+#                         dbc.Row(id = {'type':'graph-container','index':'USD'}),
+#                     ]
+#                 )
+#             ]),
+#         ],style={'padding':'2%'})
+#     ],style={'margin-top':'1%','padding-top':'1%','padding-bottom':'1%'}),
