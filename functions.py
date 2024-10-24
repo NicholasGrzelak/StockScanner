@@ -88,7 +88,8 @@ def grabStockInfo(market,ticker,price,amount):
     # 'tradeable', 'dividendYield', 'bidSize', 'dayHigh', 'coinMarketCapLink', 'regularMarketPrice', 'preMarketPrice', 'logo_url', 'trailingPegRatio'])
 
     #try:
-    outname,sector,industry,longsummary,marketprice,open,divyield,yeardiv,prevclose = stock.info['longName'],stock.info['sector'],stock.info['industry'],stock.info['longBusinessSummary'],stock.info['currentPrice'],stock.info['open'],stock.info['dividendYield'],stock.info['dividendRate'],stock.info['previousClose']
+    #stock.info['dividendYield'],stock.info['dividendRate']
+    outname,sector,industry,longsummary,marketprice,open,divyield,yeardiv,prevclose = stock.info['longName'],stock.info['sector'],stock.info['industry'],stock.info['longBusinessSummary'],stock.info['currentPrice'],stock.info['open'],9,9,stock.info['previousClose']
     #except KeyError:
         #Keyerror for longName
         #outname,sector,industry,longsummary,marketprice,open,divyield,yeardiv,prevclose = stock.info['longName'],stock.info['sector'],stock.info['industry'],stock.info['longBusinessSummary'],stock.info['currentPrice'],stock.info['open'],stock.info['dividendYield'],stock.info['dividendRate'],stock.info['previousClose']
